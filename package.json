@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Express js, MongoDB",
+  "description": "A Tinder like platform for developers",
   "license": "ISC",
   "author": "Manoranjan Parida",
   "type": "commonjs",
@@ -12,7 +12,11 @@
     "dev": "nodemon src/app.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
-    "mongoose": "^8.19.4"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.4",
+    "validator": "^13.15.23"
   }
 }

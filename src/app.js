@@ -10,6 +10,19 @@ const { userAuth } = require('./middleware/auth');
 
 app.use(express.json()); // the logic of processing json data
 app.use(cookieParser());
+app.use(express.urlencoded({extended: true}))
+
+
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile")
+const requestRoter = require("./routes/request")
+const userRouter = require("./routes/user");
+
+
+app.use("/", authRouter);
+app.use("/profile", profileRouter);
+app.use("/request", requestRoter);
+app.use("/user", userRouter)
 
 // get user by email
 app.get("/user", async (req, res) => {
@@ -45,7 +58,7 @@ app.get("/user", async (req, res) => {
 })
 
 // Feed api : GET / feed -> Fetch all the users from the database
-app.get("/feed", async (req, res) => {
+app.get("x/feed", async (req, res) => {
     try {
         const users = await User.find({});
 
@@ -156,32 +169,7 @@ app.delete("/user/:id", async (req, res) => {
 })
 
 
-// SignUp API
-app.post("/signup", async(req, res) =>{
-    // console.log(req.body)
-    try{
-        // Validdation of data
-        validateSignupData(req);
 
-        const {fullName, emailId, password} = req.body;
-
-        // Encrypt the password and store it in the database
-        const passwordHash = await bcrypt.hash(password, 10);
-        const user = new User({fullName, emailId, password: passwordHash});
-        await user.save();
-        // res.send("User added successfully")
-        res.status(201).json({
-            statusCode: 201,
-            message: "User added succesfully",
-        })
-    }catch(err){
-        res.status(400).json({
-            statusCode: 400,
-            message: "Error while saving user",
-            error: err.message
-        })
-    }
-})
 
 app.use((err, req, res, next) => {
     res.status(500).json({
@@ -191,58 +179,7 @@ app.use((err, req, res, next) => {
 });
 
 
-// Login api
-app.post("/login", async(req, res) => {
-    try{
-        const {emailId, password} = req.body;
 
-        // check for empty inputs
-        if(!emailId || !password){
-            return res.status(400).json({
-                statusCode: 400,
-                message: "Email and password are required",
-            })
-        }
-
-        // find user by email
-        const user = await User.findOne({emailId});
-        if(!user){
-            return res.status(401).json({
-                statusCode: 401,
-                message: "Invalid credentials"
-            });
-        }
-
-        // compare password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if(!isPasswordValid){
-            return res.status(401).json({
-                statusCode: 401,
-                message: "Invalid credentials"
-            })
-        }
-
-        //generate JWT token
-        const token = await jwt.sign({_id: user._id}, "Manoranjan247", {expiresIn: "7d"})
-        
-        // set token in cookie(optional)
-        res.cookie("token", token, {maxAge: 7 * 24 * 60 * 60 * 1000});
-
-        res.status(200).json({
-            statusCode: 200,
-            message: "Login successful",
-            token //optionaly send in body if needed by frontend
-        })
-
-    }catch(err){
-        res.status(500).json({
-            statusCode: 500,
-            message: "Error while logging in",
-            error: err.message
-        })
-    }
-})
 
 app.get("/profile",userAuth, async(req, res) => {
     try {
